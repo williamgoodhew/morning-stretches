@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Stretch">
+<meta name="theme-color" content="#0F1426">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Morning Stretch</title>
+<style>
+:root{
+  --ink:#0F1426;
+  --ink2:#161E36;
+  --haze:#26314F;
+  --line:#33405F;
+  --text:#EDEFF7;
+  --dim:#8B97B8;
+  --amber:#F0A55C;
+  --teal:#6FC7B6;
+  --serif: ui-serif, Georgia, "Iowan Old Style", "Times New Roman", serif;
+  --sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", system-ui, sans-serif;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0}
+html,body{height:100%}
+body{
+  background:var(--ink);
+  color:var(--text);
+  font-family:var(--sans);
+  -webkit-font-smoothing:antialiased;
+  overscroll-behavior:none;
+  touch-action:manipulation;
+}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
+.screen{
+  position:fixed;inset:0;display:none;flex-direction:column;
+  padding:calc(env(safe-area-inset-top) + 20px) 22px calc(env(safe-area-inset-bottom) + 16px);
+}
+.screen.on{display:flex}
+
+/* ---------- home ---------- */
+#home{justify-content:flex-end}
+.mark{font-family:var(--serif);font-size:15px;color:var(--dim);letter-spacing:.02em}
+.greet{
+  font-family:var(--serif);font-size:40px;line-height:1.08;font-weight:400;
+  margin-top:6px;letter-spacing:-0.02em;
+}
+.greet em{font-style:italic;color:var(--amber)}
+.sub{margin-top:14px;color:var(--dim);font-size:15px;line-height:1.5;max-width:30ch}
+.picks{margin-top:auto;padding-top:34px;display:flex;flex-direction:column;gap:2px}
+.pick{
+  display:flex;align-items:baseline;gap:14px;width:100%;text-align:left;
+  padding:15px 0;border-top:1px solid var(--line);
+}
+.pick:last-child{border-bottom:1px solid var(--line)}
+.pick .num{font-family:var(--serif);font-variant-numeric:tabular-nums;letter-spacing:-0.03em;line-height:1}
+.pick[data-len="10"] .num{font-size:38px;color:#B9C2DC}
+.pick[data-len="20"] .num{font-size:52px;color:#D6DCEE}
+.pick[data-len="30"] .num{font-size:66px;color:var(--text)}
+.pick .unit{font-size:13px;color:var(--dim)}
+.pick .desc{margin-left:auto;text-align:right;font-size:13px;color:var(--dim);line-height:1.4;max-width:15ch}
+.pick:active{opacity:.55}
+.flare{
+  margin-top:22px;display:flex;align-items:center;gap:13px;
+  background:var(--ink2);border:1px solid var(--line);border-radius:14px;padding:14px 15px;
+  text-align:left;width:100%;
+}
+.sw{width:44px;height:26px;border-radius:13px;background:var(--haze);flex:none;position:relative;transition:background .2s}
+.sw::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#7A87A8;transition:transform .2s,background .2s}
+.flare.on .sw{background:rgba(111,199,182,.28)}
+.flare.on .sw::after{transform:translateX(18px);background:var(--teal)}
+.flare .lab{font-size:15px}
+.flare .hint{font-size:12.5px;color:var(--dim);margin-top:3px;line-height:1.4}
+.mute{
+  margin-top:14px;align-self:flex-start;padding:6px 0;font-size:13px;color:var(--teal);
+  display:flex;align-items:center;gap:9px;text-align:left;
+}
+.mute::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--teal);flex:none}
+.mute.off{color:var(--dim)}
+.mute.off::before{background:transparent;box-shadow:inset 0 0 0 1px var(--dim)}
+.foot{margin-top:16px;font-size:12px;color:rgba(139,151,184,.7);line-height:1.5}
+
+/* ---------- session ---------- */
+#run{padding-top:calc(env(safe-area-inset-top) + 14px)}
+.bar{position:fixed;top:0;left:0;right:0;height:3px;background:var(--haze)}
+.bar i{display:block;height:100%;background:var(--amber);width:0%;transition:width .9s linear}
+.meta{display:flex;justify-content:space-between;font-size:12.5px;color:var(--dim);font-variant-numeric:tabular-nums}
+.meta .x{color:var(--dim)}
+.body{flex:1;display:flex;flex-direction:column;justify-content:center;min-height:0;padding:14px 0}
+.side{font-size:13px;color:var(--amber);height:18px;letter-spacing:.01em}
+.name{font-family:var(--serif);font-size:33px;line-height:1.14;font-weight:400;letter-spacing:-0.02em;margin-top:3px}
+
+.row{display:flex;align-items:center;gap:10px}
+.fig{flex:1;min-width:0;height:96px;opacity:0;transition:opacity .25s}
+.fig.big{width:100%;height:150px;margin-top:14px}
+.f-spine,.f-near,.f-far{fill:none;stroke-linecap:round;stroke-linejoin:round}
+.f-spine{stroke:var(--text);stroke-width:4.5}
+.f-near{stroke:var(--text);stroke-width:3}
+.f-far{stroke:var(--text);stroke-width:2;opacity:.32}
+.f-head{fill:var(--text)}
+.f-ground{stroke:var(--line);stroke-width:1.2}
+.look{font-size:13px;color:var(--dim);text-decoration:none;border-bottom:1px solid var(--line);align-self:flex-start;padding-bottom:2px;margin-bottom:12px}
+@media (max-height:680px){.fig{height:76px}.fig.big{height:118px}}
+.count{
+  font-family:var(--serif);font-size:74px;line-height:1;font-variant-numeric:tabular-nums;
+  letter-spacing:-0.04em;margin-top:18px;
+}
+.count.low{color:var(--amber)}
+.tick{height:2px;background:var(--haze);margin-top:12px;border-radius:2px;overflow:hidden}
+.tick i{display:block;height:100%;background:var(--text);width:100%;transition:width .95s linear}
+.cue{margin-top:20px;font-size:16px;line-height:1.55;color:#D2D9EC;max-width:40ch}
+.flag{
+  margin-top:16px;display:none;gap:10px;font-size:13.5px;line-height:1.45;color:var(--teal);
+  border-left:2px solid rgba(111,199,182,.5);padding-left:12px;max-width:38ch;
+}
+.flag.on{display:flex}
+.next{font-size:13px;color:var(--dim);padding-top:12px;line-height:1.4}
+.ctrl{display:flex;gap:10px;margin-top:14px}
+.ctrl button{
+  background:var(--ink2);border:1px solid var(--line);border-radius:16px;
+  height:60px;display:flex;align-items:center;justify-content:center;font-size:15px;
+}
+.ctrl .side-btn{width:66px;flex:none;font-size:22px;color:var(--dim)}
+.ctrl .play{flex:1;font-weight:500}
+.ctrl button:active{background:var(--haze)}
+.quit{margin-top:10px;font-size:13px;color:var(--dim);align-self:flex-start;padding:6px 0}
+
+/* transition */
+#gap{align-items:flex-start;justify-content:center}
+#gap .up{font-size:13px;color:var(--dim)}
+#gap .nm{font-family:var(--serif);font-size:36px;line-height:1.15;margin-top:8px;max-width:16ch}
+#gap .sd{font-size:14px;color:var(--amber);margin-top:6px}
+#gap .cd{font-family:var(--serif);font-size:120px;line-height:1;color:var(--haze);margin-top:26px;font-variant-numeric:tabular-nums}
+#gap .skip{margin-top:auto;font-size:15px;color:var(--dim);align-self:flex-start;padding:12px 0}
+
+/* done */
+#done{justify-content:center}
+#done .h{font-family:var(--serif);font-size:38px;line-height:1.12;letter-spacing:-0.02em}
+#done .p{margin-top:14px;color:var(--dim);font-size:15px;line-height:1.55;max-width:32ch}
+.doneBtns{display:flex;flex-direction:column;gap:10px;align-items:flex-start;margin-top:30px}
+#done button{
+  background:var(--ink2);border:1px solid var(--line);border-radius:16px;
+  padding:17px 24px;font-size:15px;
+}
+#done button.go{background:var(--amber);border-color:var(--amber);color:#16110A;font-weight:500}
+#done button:active{opacity:.7}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+@media (max-height:680px){
+  
+.row{display:flex;align-items:center;gap:10px}
+.fig{flex:1;min-width:0;height:96px;opacity:0;transition:opacity .25s}
+.fig.big{width:100%;height:150px;margin-top:14px}
+.f-spine,.f-near,.f-far{fill:none;stroke-linecap:round;stroke-linejoin:round}
+.f-spine{stroke:var(--text);stroke-width:4.5}
+.f-near{stroke:var(--text);stroke-width:3}
+.f-far{stroke:var(--text);stroke-width:2;opacity:.32}
+.f-head{fill:var(--text)}
+.f-ground{stroke:var(--line);stroke-width:1.2}
+.look{font-size:13px;color:var(--dim);text-decoration:none;border-bottom:1px solid var(--line);align-self:flex-start;padding-bottom:2px;margin-bottom:12px}
+@media (max-height:680px){.fig{height:76px}.fig.big{height:118px}}
+.count{font-size:66px}.name{font-size:28px}.cue{font-size:15px}.greet{font-size:34px}
+  .pick[data-len="30"] .num{font-size:56px}
+}
+</style>
+</head>
+<body>
+
+<!-- ============ HOME ============ -->
+<section class="screen on" id="home">
+  <div>
+    <div class="mark">Morning Stretch</div>
+    <h1 class="greet" id="greet">Let's get the <em>stiffness</em> out.</h1>
+    <p class="sub">Hips, mid-back and posture, built to be sciatica-friendly. Put the phone on the floor and follow along.</p>
+  </div>
+
+  <div class="picks">
+    <button class="pick" data-len="10" onclick="start(10)">
+      <span class="num">10</span><span class="unit">min</span>
+      <span class="desc">the short one, on a rushed day</span>
+    </button>
+    <button class="pick" data-len="20" onclick="start(20)">
+      <span class="num">20</span><span class="unit">min</span>
+      <span class="desc">the default</span>
+    </button>
+    <button class="pick" data-len="30" onclick="start(30)">
+      <span class="num">30</span><span class="unit">min</span>
+      <span class="desc">the hard one — mobility, hips, core</span>
+    </button>
+  </div>
+
+  <button class="flare" id="flare" onclick="toggleFlare()">
+    <span class="sw"></span>
+    <span>
+      <span class="lab">Sciatica is playing up</span>
+      <span class="hint" id="flareHint">Off — full routine</span>
+    </span>
+  </button>
+
+  <button class="mute" id="mute" onclick="toggleSound()">Gong and spoken cues on — take the phone off silent</button>
+
+  <p class="foot">Nothing here should cause sharp pain or send symptoms further down the leg. If it does, back off. Persistent sciatica is worth a physio's eyes.</p>
+</section>
+
+<!-- ============ SESSION ============ -->
+<section class="screen" id="run">
+  <div class="bar"><i id="barFill"></i></div>
+  <div class="meta">
+    <span id="pos">1 of 25</span>
+    <span class="x" id="left">20 min left</span>
+  </div>
+
+  <div class="body">
+    <div class="side" id="side"></div>
+    <h2 class="name" id="name">Breathing reset</h2>
+    <div class="row">
+      <div class="count" id="count">60</div>
+      <svg class="fig" viewBox="0 0 200 120" aria-hidden="true"><line class="f-ground" x1="8" y1="100" x2="192" y2="100"/><polyline class="f-arm2 f-far" points=""/><polyline class="f-leg2 f-far" points=""/><polyline class="f-leg f-near" points=""/><polyline class="f-arm f-near" points=""/><polyline class="f-spine" points=""/><circle class="f-head" r="6.5"/></svg>
+    </div>
+    <div class="tick"><i id="tickFill"></i></div>
+    <p class="cue" id="cue"></p>
+    <p class="flag" id="flag"><span>◦</span><span id="flagText"></span></p>
+  </div>
+
+  <a class="look" id="look" href="#" target="_blank" rel="noopener">Look this one up</a>
+  <div class="next" id="next"></div>
+  <div class="ctrl">
+    <button class="side-btn" onclick="jump(-1)" aria-label="Previous stretch">‹</button>
+    <button class="play" id="play" onclick="togglePlay()">Pause</button>
+    <button class="side-btn" onclick="jump(1)" aria-label="Next stretch">›</button>
+  </div>
+  <button class="quit" onclick="quit()">End session</button>
+</section>
+
+<!-- ============ TRANSITION ============ -->
+<section class="screen" id="gap">
+  <div>
+    <div class="up">Next up</div>
+    <div class="nm" id="gapName"></div>
+    <div class="sd" id="gapSide"></div>
+    <svg class="fig big" viewBox="0 0 200 120" aria-hidden="true"><line class="f-ground" x1="8" y1="100" x2="192" y2="100"/><polyline class="f-arm2 f-far" points=""/><polyline class="f-leg2 f-far" points=""/><polyline class="f-leg f-near" points=""/><polyline class="f-arm f-near" points=""/><polyline class="f-spine" points=""/><circle class="f-head" r="6.5"/></svg>
+    <div class="cd" id="gapCount">5</div>
+  </div>
+  <button class="skip" onclick="skipGap()">Skip ahead</button>
+</section>
+
+<!-- ============ DONE ============ -->
+<section class="screen" id="done">
+  <h2 class="h">Done. That's the hard part over.</h2>
+  <p class="p" id="doneText">Twenty minutes of hips and spine. Try to stand up and walk around for a minute before you sit down to anything.</p>
+  <div class="doneBtns">
+    <button class="go" id="more" onclick="goOn()">Keep going</button>
+    <button onclick="home()">Back to start</button>
+  </div>
+</section>
+
+<script>
+/* ---------------- exercise library ---------------- */
+const LIB = {
+  breath:{n:"Breathing reset",c:"On your back, knees bent, feet flat. Hands on the lower ribs. Breathe in through the nose so the ribs widen sideways, then a long slow exhale. Let the shoulders melt into the floor."},
+  glide:{n:"Sciatic nerve glide",side:1,c:"On your back, hold behind one thigh, knee bent to about 90°. Slowly straighten that knee while you tuck your chin, then bend it back as you look up. Keep moving in and out — don't hold at the end.",f:"This is a glide, not a stretch. Nothing should build up or linger."},
+  bridge:{n:"Glute bridge",c:"Feet hip-width, heels under the knees. Squeeze the glutes first, then lift the hips into a straight line from knee to shoulder. Lower slowly. Drive through the heels."},
+  catcow:{n:"Cat and cow",c:"On hands and knees. Exhale and round the spine up, inhale and let it drop. Keep the range small for the first few — the spine is at its stiffest just after waking."},
+  fig4:{n:"Figure-4 glute stretch",side:1,c:"On your back, ankle crossed over the opposite thigh, then pull that thigh toward your chest. Head stays down.",f:"Feel it in the back of the hip. If it travels down the leg, ease off until it doesn't."},
+  sphinx:{n:"Sphinx",c:"Face down, propped on the forearms, elbows under the shoulders. Let the hips stay heavy and the glutes go soft. Just breathe here.",f:"If leg symptoms pull back up toward the buttock or back, that's a good sign — stay."},
+  ttn:{n:"Thread the needle",side:1,c:"From hands and knees, slide one arm under the other along the floor and let that shoulder rest down. Keep the hips stacked over the knees."},
+  hipflex:{n:"Kneeling hip flexor",side:1,c:"Half-kneeling. Tuck the tailbone under and squeeze the back glute first, then shift forward a couple of inches. Ribs down — don't arch the back to get more."},
+  chintuck:{n:"Chin tucks",c:"Sit or stand tall. Draw the chin straight back to make a double chin, hold three seconds, release. Small movement — no tilting up or down."},
+  deadbug:{n:"Dead bug",c:"On your back, arms up, knees over hips. Press the low back gently into the floor, then lower one arm and the opposite leg. Return, switch. Stop the moment the back lifts away."},
+  birddog:{n:"Bird dog",c:"Hands and knees. Reach one arm forward and the opposite leg back until level with the body. Hold three seconds, switch. Keep the hips square, as if balancing a cup on your low back."},
+  n9090:{n:"90/90 hip switches",c:"Sit with one leg in front bent to 90° and the other out to the side. Rotate both knees down to the other side and back. Slow, chest tall, hands behind you for support."},
+  openbook:{n:"Open book",side:1,c:"Side-lying, knees bent and stacked, arms straight out in front. Keep the knees glued down and open the top arm across your body toward the floor behind you. Follow the hand with your eyes."},
+  wallangel:{n:"Wall angels",c:"Back to a wall, feet a few inches out. Press the low back, head and arms into the wall, then slide the arms up and down. Only go as high as you can without the back arching off."},
+  pec:{n:"Doorway chest stretch",side:1,c:"Forearm flat on the door frame, elbow at shoulder height. Step through gently and turn the chest away. Stand tall — no leaning in."},
+  clam:{n:"Clamshell",side:1,c:"Side-lying, knees bent, heels in line with the spine. Feet stay together as you lift the top knee. Don't let the hips roll back."},
+  calf:{n:"Calf stretch at the wall",side:1,c:"Hands on the wall, one foot back, heel down, that leg straight. Halfway through, bend the back knee a little to drop it lower into the calf."},
+  squat:{n:"Deep squat hold",skip:1,c:"Feet a little wider than the hips, toes turned out. Sit as low as is comfortable, elbows inside the knees, chest tall. Hold a door frame if you need the balance."},
+  twist:{n:"Gentle supine twist",side:1,skip:1,c:"On your back, knees bent, let them drop to one side and open the arms. Keep it easy — this is a rest, not a wring-out."},
+  hinge:{n:"Standing hamstring hinge",side:1,skip:1,c:"One heel forward on the floor, toes up. Push the hips back with a long flat back until you feel the back of that thigh.",f:"Never round the low back to reach further — that's what irritates the nerve."},
+  wgs:{n:"World's greatest stretch",side:1,skip:1,c:"Long lunge, same-side hand on the floor inside the front foot. Drop the back hip, then rotate the chest open and reach the top arm to the ceiling. Look at the hand."},
+  child:{n:"Child's pose, side reach",c:"Knees wide, hips back toward the heels, arms long. Walk the hands over to one side to open the ribs, breathe, then to the other. Cushion under the hips if the knees complain."},
+  sidebend:{n:"Standing side bend",side:1,c:"Feet hip-width, one arm overhead, lean away. Both feet planted, hips level. Feel it along the ribs, not in the low back."},
+  rockback:{n:"Quadruped rock backs",c:"Hands and knees, flat back. Rock the hips back toward the heels only as far as the low back stays flat, then return. Slow and rhythmic."},
+  cobra:{n:"Press-up",c:"Face down, hands under the shoulders. Press the chest up while the hips stay heavy on the floor. Only as far as is comfortable, and lower with control."},
+  close:{n:"Close it out",c:"Lie flat, or with the knees bent. Nothing to do — a few slow breaths, longer on the way out, and notice how different you feel from ten minutes ago."},
+
+  /* --- advanced --- */
+  thoracicext:{n:"Thoracic extension over a towel",c:"Roll a towel tight and lay it across the floor. Mid-back on it, hands behind the head, knees bent. Exhale and drape backwards over the roll. Every few breaths shift an inch up or down the mid-back.",f:"Keep the ribs down and the extension above the waist. If it's happening in the low back, the towel is too low."},
+  ankle:{n:"Ankle rock-over",side:1,c:"Half-kneeling, front foot flat. Drive the front knee forward over the little toe, heel glued down, hold a beat at the end, come back. Chase a bit more range each rep."},
+  cossack:{n:"Cossack squat",side:1,c:"Wide stance, toes slightly out. Sit down into one hip, keeping the other leg straight with the toes pulled up. Chest tall, heel down. Push back to the middle and repeat on that side."},
+  squatrot:{n:"Deep squat with rotation",c:"Sit into the bottom of a squat, feet flat. Put one hand on the floor and reach the other arm to the ceiling, opening the chest, eyes on the hand. Alternate. Stay low the whole time."},
+  squat2stand:{n:"Squat to stand",skip:1,c:"Feet hip-width, bend down and hook your fingers under your toes. Sink the hips into a deep squat and lift the chest. Then straighten the legs, keeping the hands down, until the hamstrings load. Back down and repeat."},
+  couch:{n:"Couch stretch",side:1,c:"Back knee on the floor against a wall or sofa, that shin running up it, front foot planted. Tuck the tailbone hard and bring the torso upright. This is a big one — breathe through it.",f:"If the front of the hip cramps, come out a few inches. Squeezing the back glute usually settles it."},
+  wgsham:{n:"Lunge to hamstring",side:1,skip:1,c:"From a long lunge with the hands down, shift the hips back over the rear foot and straighten the front leg, toes up. Then drive forward into the lunge again. Flow between the two.",f:"Keep the back flat as you shift back. Long spine, hinge at the hip."},
+  activehf:{n:"Standing hip flexor hold",side:1,c:"Stand tall, drive one knee up above hip height and hold it there with no hands. Opposite arm forward, tall through the crown. This is the strength half of the hip flexor work."},
+  deadbug2:{n:"Slow dead bug",c:"Arms up, knees over hips. Press the low back into the floor and hold it there. Extend one arm and the opposite leg out long and low over about four seconds, exhale the whole way, then return. Alternate."},
+  hollow:{n:"Hollow body hold",skip:1,c:"On your back, low back pressed flat, arms overhead and legs straight and low. Hold. Lift the legs higher if the back lifts away — that's the tell you've gone too long a lever."},
+  birddog2:{n:"Bird dog with elbow taps",c:"From bird dog, draw the elbow and knee together underneath you, round slightly, then reach long again. Keep the hips dead square. Five slow reps a side."},
+  sideplank:{n:"Side plank, top leg lift",side:1,c:"Forearm side plank, feet stacked or staggered. Drive the hips high, then lift the top leg and hold it there. Shoulder stacked over the elbow.",f:"Drop to the bottom knee if the hips sag — a clean short hold beats a long collapsed one."},
+  bear:{n:"Bear plank shoulder taps",c:"Hands and knees, toes tucked, knees hovering an inch off the floor. Hold that, then tap one hand to the opposite shoulder. Do not let the hips rock side to side."},
+  bridgemarch:{n:"Glute bridge march",c:"Bridge up and hold the hips high. Lift one foot and bring that knee toward the chest, put it back, switch. The pelvis stays completely level — that's the whole point."},
+  ytw:{n:"Prone Y, T, W",c:"Face down, forehead resting down. Lift the arms just off the floor and hold three seconds in each shape: overhead in a Y, straight out in a T, then elbows bent into a W. Thumbs to the ceiling, shoulders away from the ears."},
+  shoulderpass:{n:"Shoulder pass-through",c:"Hold a towel or belt wide in both hands, arms straight. Sweep it from your thighs up overhead and as far behind you as is comfortable, then back. Slow both ways.",f:"Go wider on the grip if the shoulders pinch. Never force the end range — the range comes from repetition."},
+  gorilla:{n:"Gorilla squat",skip:1,c:"Feet a bit wider than the hips. Drop into a deep squat and slide the hands under the feet, palms up. Then push the hips up to straighten the legs, keeping the hands under the feet, and sink back down.",f:"Hamstrings and low back load together at the top — keep the spine long rather than rounding down to reach."},
+  plank:{n:"Forearm plank",c:"Elbows under the shoulders, feet hip-width. Squeeze the glutes and brace the ribs down so the body is one line from head to heels. No sagging hips, no piking up."},
+  slsquat:{n:"Single-leg squat",side:1,c:"Stand on one leg, other leg out in front. Sit back and down under control, then drive up. Put a chair or box behind you and sit to it — that's the version most people should be doing.",f:"Track the knee over the middle of the foot. If it caves inward, go to a higher box."}
+};
+
+/* ---------------- routines: [key, seconds per side/rep] ---------------- */
+const PLANS = {
+  10:[["catcow",45],["glide",30],["bridge",45],["sphinx",45],["fig4",40],["ttn",35],["hipflex",40],["n9090",60],["squatrot",50]],
+  20:[["breath",60],["glide",30],["bridge",45],["deadbug",45],["catcow",60],["birddog",60],["fig4",45],["n9090",60],["sphinx",45],["ttn",40],["openbook",45],["hipflex",45],["clam",30],["wallangel",45],["pec",40],["calf",30],["chintuck",30]],
+  30:[
+    /* wake the spine */
+    ["breath",40],["glide",30],["catcow",40],["rockback",40],["sphinx",40],
+    /* mobility */
+    ["thoracicext",45],["openbook",40],["n9090",60],["ankle",35],["cossack",45],["squatrot",60],["squat2stand",40],
+    /* hips */
+    ["couch",50],["wgs",50],["wgsham",35],["activehf",30],["fig4",40],
+    /* core */
+    ["deadbug2",45],["hollow",35],["birddog2",50],["sideplank",40],["bear",40],["bridgemarch",40],
+    /* posture */
+    ["ytw",45],["wallangel",45],["pec",40],["chintuck",30],["close",40]
+  ]
+};
+
+const GAP = 5;
+let flare = false, tier = 20, queue = [], idx = 0, remain = 0, timer = null, playing = false, lock = null;
+
+/* what each routine can roll on into, if you're not done */
+const EXTRA = {
+  10:[["shoulderpass",40],["deadbug",45],["birddog",60],["gorilla",45],["openbook",45],
+      ["plank",45],["calf",30],["squatrot",50],["pec",40],["slsquat",35]],
+  20:[["couch",50],["wgs",50],["cossack",45],["sideplank",60],
+      ["bear",40],["hollow",35],["ytw",45]]
+};
+const NEXT_TIER = {10:20, 20:30};
+
+function expand(plan){
+  const out = [];
+  plan.forEach(([k,dur])=>{
+    const e = LIB[k];
+    if(flare && e.skip) return;
+    if(e.side){
+      out.push({k,dur,side:"left side"});
+      out.push({k,dur,side:"right side"});
+    } else out.push({k,dur,side:""});
+  });
+  return out;
+}
+function buildQueue(mins){
+  const out = expand(PLANS[mins]);
+  if(flare){
+    /* gentler emphasis: an extra set of nerve glides to finish */
+    out.push({k:"glide",dur:30,side:"left side"},{k:"glide",dur:30,side:"right side"});
+  }
+  return out;
+}
+const runtime = q => Math.round((q.reduce((s,x)=>s+x.dur,0) + Math.max(0,q.length-1)*GAP)/60);
+const totalLeft = i => queue.slice(i).reduce((s,x)=>s+x.dur,0) + Math.max(0,queue.length-i-1)*GAP;
+
+/* ---------------- screens ---------------- */
+const $ = id => document.getElementById(id);
+function show(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on', s.id===id)); }
+
+function toggleFlare(){
+  flare = !flare;
+  $('flare').classList.toggle('on', flare);
+  $('flareHint').textContent = flare
+    ? "On — loaded flexion, straight-leg and end-range moves removed, extra nerve glides added"
+    : "Off — full routine";
+}
+
+/* ---------------- run ---------------- */
+function start(mins){
+  initAudio();                                   /* iOS only allows this from a tap */
+  queue = buildQueue(mins); idx = 0; tier = mins;
+  $('doneText').textContent = mins + " minutes of hips and spine, done. Stand up and walk around for a minute before you sit down to anything.";
+  wake(); show('run'); load(); play();
+  setTimeout(()=>say("Starting with " + spoken(queue[0])), 300);
+}
+function load(){
+  const e = queue[idx], d = LIB[e.k];
+  remain = e.dur;
+  $('name').textContent = d.n;
+  $('side').textContent = e.side;
+  $('cue').textContent = d.c;
+  $('flag').classList.toggle('on', !!d.f);
+  $('flagText').textContent = d.f || "";
+  $('pos').textContent = (idx+1) + " of " + queue.length;
+  const nx = queue[idx+1];
+  $('next').textContent = nx ? "Then: " + LIB[nx.k].n + (nx.side ? ", " + nx.side : "") : "Last one.";
+  setFigure(e.k);
+  $('look').href = "https://www.youtube.com/results?search_query=" + encodeURIComponent(d.n + " exercise how to");
+  paint();
+}
+function paint(){
+  const e = queue[idx];
+  $('count').textContent = remain;
+  $('count').classList.toggle('low', remain <= 5);
+  $('tickFill').style.width = (remain / e.dur * 100) + "%";
+  $('barFill').style.width = (1 - totalLeft(idx) / totalLeft(0)) * 100 + "%";
+  const m = Math.round(totalLeft(idx)/60);
+  $('left').textContent = m <= 1 ? "almost done" : m + " min left";
+}
+function tick(){
+  remain--;
+  if(remain <= 0){ advance(); return; }
+  if(remain <= 3) tock();
+  paint();
+}
+function play(){ playing = true; $('play').textContent = "Pause"; clearInterval(timer); timer = setInterval(tick,1000); }
+function pause(){ playing = false; $('play').textContent = "Resume"; clearInterval(timer); }
+function togglePlay(){ playing ? pause() : play(); }
+function jump(n){
+  clearInterval(timer); clearInterval(gapTimer); hush();
+  idx = Math.min(queue.length-1, Math.max(0, idx+n));
+  show('run'); load(); play(); say(spoken(queue[idx]));
+}
+function advance(){
+  clearInterval(timer);
+  gong(false);
+  if(idx >= queue.length-1){ finish(); return; }
+  idx++;
+  gapCountdown();
+}
+/* transition screen */
+let gapTimer = null;
+function gapCountdown(){
+  const e = queue[idx], d = LIB[e.k];
+  let n = GAP;
+  $('gapName').textContent = d.n;
+  $('gapSide').textContent = e.side;
+  $('gapCount').textContent = n;
+  show('gap');
+  setFigure(e.k);
+  setTimeout(()=>say(spoken(e)), 500);          /* let the strike land before the voice */
+  gapTimer = setInterval(()=>{
+    n--;
+    $('gapCount').textContent = n;
+    if(n <= 0){ clearInterval(gapTimer); show('run'); load(); play(); }
+  },1000);
+}
+function skipGap(){ clearInterval(gapTimer); show('run'); load(); play(); }
+
+function finish(){
+  clearInterval(timer); setTimeout(()=>gong(true), 800);
+  say("That's it. Well done."); show('done'); release();
+  const more = EXTRA[tier] && expand(EXTRA[tier]);
+  if(more && more.length){
+    $('more').style.display = "block";
+    $('more').textContent = "Keep going — " + runtime(more) + " more minutes";
+  } else $('more').style.display = "none";
+}
+/* roll straight on into the next block without going back to the start */
+function goOn(){
+  initAudio();
+  queue = expand(EXTRA[tier]); idx = 0; tier = NEXT_TIER[tier] || 30;
+  $('doneText').textContent = "That's the lot. Stand up and walk around for a minute before you sit down to anything.";
+  wake(); show('run'); load(); play();
+  setTimeout(()=>say("Carrying on with " + spoken(queue[0])), 300);
+}
+function quit(){ clearInterval(timer); clearInterval(gapTimer); hush(); show('home'); release(); }
+function home(){ show('home'); }
+
+const FIG = {
+  breath:[[100,93,180,180,345,110,35,287,350,337,102,28,280,343],[100,91,180,180,345,112,37,285,350,337,104,30,278,343]],
+  glide:[[100,93,180,180,25,105,75,250,270,190,190,352,352,330],[100,93,180,180,25,105,75,70,20,190,190,352,352,330]],
+  hollow:[[100,90,180,183,172,172,345,345,325,164,164,338,338,318],[100,90,180,186,175,175,350,350,330,167,167,343,343,323]],
+  close:[[100,94,180,180,190,190,350,350,330,182,182,343,343,323],[100,93,180,180,190,190,350,350,330,182,182,343,343,323]],
+  deadbug:[[100,92,180,180,88,88,72,2,340,88,88,72,2,340],[100,92,180,180,140,140,72,2,340,88,88,15,352,330]],
+  deadbug2:[[100,92,180,180,88,88,72,2,340,88,88,72,2,340],[100,92,180,180,150,150,72,2,340,88,88,8,350,328]],
+  fig4:[[100,93,180,180,20,100,70,235,200,15,140,25,140,120],[100,93,180,180,20,100,60,230,195,15,140,20,138,118]],
+  twist:[[100,93,180,180,150,150,60,300,265,25,25,52,295,260],[100,93,180,180,150,150,25,340,300,25,25,18,335,295]],
+  bridge:[[100,80,250,180,180,180,0,270,340,172,172,-7,263,333],[100,77,252,180,180,180,2,272,342,172,172,-5,265,335]],
+  bridgemarch:[[100,78,250,180,180,180,0,270,340,172,172,0,270,340],[100,78,250,180,180,180,0,270,340,172,172,55,345,315]],
+  thoracicext:[[100,92,168,150,150,150,25,295,350,142,142,18,288,343],[100,92,163,140,155,155,25,295,350,147,147,18,288,343]],
+  catcow:[[85,77,20,45,268,268,272,180,180,260,260,265,173,173],[85,79,12,350,268,268,268,180,180,260,260,261,173,173]],
+  rockback:[[85,77,20,20,268,268,272,180,180,260,260,265,173,173],[72,82,12,15,300,300,250,175,175,292,292,243,168,168]],
+  birddog:[[85,77,18,18,268,268,272,180,180,16,16,192,190,172],[85,77,18,18,268,268,272,180,180,262,262,268,178,178]],
+  birddog2:[[85,77,18,18,268,268,272,180,180,15,15,192,190,172],[85,79,10,352,268,268,272,180,180,305,250,250,330,300]],
+  bear:[[85,77,20,20,268,268,278,196,265,260,260,278,196,265],[85,77,20,20,268,268,278,196,265,340,250,278,196,265]],
+  ttn:[[85,79,14,10,250,190,272,180,180,268,268,265,173,173],[85,80,12,8,248,188,272,180,180,268,268,265,173,173]],
+  child:[[70,84,14,10,345,345,255,178,178,337,337,248,171,171],[70,84,14,20,352,352,255,178,178,344,344,248,171,171]],
+  sphinx:[[80,97,25,20,278,0,185,185,200,270,-8,178,178,193],[80,96,28,26,278,0,185,185,200,270,-8,178,178,193]],
+  cobra:[[80,97,45,35,283,292,183,183,198,275,284,176,176,191],[80,97,38,28,283,292,183,183,198,275,284,176,176,191]],
+  ytw:[[80,97,6,6,150,150,183,183,198,150,150,176,176,191],[80,97,6,6,182,182,183,183,198,182,182,176,176,191]],
+  sideplank:[[100,78,195,195,265,0,335,335,300,257,-8,335,335,300],[100,76,195,195,265,0,335,335,300,257,-8,352,350,315]],
+  openbook:[[100,88,178,178,20,20,325,240,200,185,185,325,240,200],[100,88,178,178,140,140,325,240,200,185,185,325,240,200]],
+  clam:[[100,88,178,178,190,190,330,235,195,182,182,330,235,195],[100,88,178,178,190,190,355,225,190,182,182,330,235,195]],
+  n9090:[[95,84,88,88,300,330,352,10,340,292,322,200,170,155],[95,84,88,88,300,330,200,172,157,292,322,352,8,338]],
+  hipflex:[[95,76,100,100,265,265,352,275,340,257,257,248,186,200],[97,74,100,100,265,265,350,272,338,257,257,245,184,198]],
+  couch:[[95,74,98,98,262,262,350,272,338,254,254,250,140,120],[95,72,100,100,262,262,348,270,336,254,254,252,138,118]],
+  ankle:[[93,76,95,95,300,330,345,272,335,292,322,250,186,200],[99,74,92,92,300,330,330,268,330,292,322,250,186,200]],
+  wgs:[[97,72,60,55,258,258,350,272,338,90,90,232,190,205],[97,72,72,80,258,258,350,272,338,95,95,232,190,205]],
+  wgsham:[[97,72,60,55,258,258,350,272,338,262,262,232,190,205],[82,70,35,35,265,265,330,340,300,268,268,250,272,340]],
+  chintuck:[[100,54,95,92,275,275,268,268,340,267,267,272,272,344],[100,54,95,100,275,275,268,268,340,267,267,272,272,344]],
+  wallangel:[[100,54,92,92,150,150,270,270,342,150,150,270,270,342],[100,54,92,92,110,110,270,270,342,110,110,270,270,342]],
+  pec:[[100,54,92,80,25,20,272,272,344,250,250,265,265,338],[103,54,88,75,20,15,272,272,344,250,250,265,265,338]],
+  calf:[[95,58,70,65,25,25,300,268,340,25,25,248,262,335],[95,58,70,65,25,25,300,268,340,25,25,248,255,330]],
+  sidebend:[[100,54,110,110,120,120,268,268,340,280,280,272,272,344],[100,54,70,70,60,60,268,268,340,260,260,272,272,344]],
+  activehf:[[100,56,92,92,255,300,270,270,342,290,340,20,290,345],[100,56,92,92,255,300,270,270,342,290,340,35,295,350]],
+  hinge:[[88,66,35,30,290,290,300,272,340,290,290,252,268,345],[85,68,28,25,290,290,305,268,338,290,290,250,265,342]],
+  squat:[[100,74,88,88,15,50,340,235,195,165,130,200,305,345],[100,72,88,88,15,50,338,233,193,165,130,198,303,343]],
+  squatrot:[[100,74,80,60,60,60,340,235,195,250,250,200,305,345],[100,74,95,110,100,100,340,235,195,250,250,200,305,345]],
+  squat2stand:[[100,74,80,70,280,300,340,235,195,255,290,200,305,345],[96,64,30,25,285,290,300,270,340,285,290,252,268,345]],
+  cossack:[[100,74,80,75,20,20,345,240,200,160,160,205,200,225],[100,74,80,75,20,20,195,200,225,160,160,355,250,210]]
+};
+
+/* ---- stick-figure renderer: fixed bone lengths, so the body can't deform ---- */
+const EXTRA_FIG = {
+  shoulderpass:[[100,54,92,92,0,0,270,270,342,5,5,272,272,344],[100,54,92,92,100,100,270,270,342,105,105,272,272,344]],
+  gorilla:[[100,74,80,70,280,300,340,235,195,255,290,200,305,345],[96,64,30,25,285,290,300,270,340,285,290,252,268,345]],
+  plank:[[92,86,4,10,270,0,182,182,250,270,0,178,178,246],[92,84,4,10,272,0,182,182,250,272,0,178,178,246]],
+  slsquat:[[100,58,92,88,352,352,272,272,342,352,352,350,342,312],[100,76,72,68,352,352,282,248,318,352,352,8,352,322]]
+};
+Object.assign(FIG, EXTRA_FIG);
+const BONE = {spine:24, neck:7, head:8, uarm:17, farm:16, thigh:23, shin:23, foot:8};
+const rad = d => d * Math.PI / 180;
+const step = (p, a, l) => [p[0] + l*Math.cos(rad(a)), p[1] - l*Math.sin(rad(a))];
+
+function skeleton(v){
+  const [x,y,s,n,a,f,t,k,o,a2,f2,t2,k2,o2] = v;
+  const hip=[x,y], chest=step(hip,s,BONE.spine), neck=step(chest,n,BONE.neck), head=step(neck,n,BONE.head);
+  const arm=(u,l)=>{const e=step(chest,u,BONE.uarm);return [chest,e,step(e,l,BONE.farm)];};
+  const leg=(th,sh,ft)=>{const kn=step(hip,th,BONE.thigh), an=step(kn,sh,BONE.shin);return [hip,kn,an,step(an,ft,BONE.foot)];};
+  return {spine:[hip,chest,neck], head, nearArm:arm(a,f), farArm:arm(a2,f2), nearLeg:leg(t,k,o), farLeg:leg(t2,k2,o2)};
+}
+const mix = (A,B,u) => A.map((v,i)=>v + (B[i]-v)*u);
+const path = pts => pts.map(p=>p[0].toFixed(1)+","+p[1].toFixed(1)).join(" ");
+
+let figKey = null, figRaf = null, figT = 0;
+function setFigure(key){
+  figKey = FIG[key] ? key : null;
+  document.querySelectorAll('.fig').forEach(el=>el.style.opacity = figKey ? 1 : 0);
+  figT = 0;
+  if(!figRaf) figRaf = requestAnimationFrame(drawFig);
+}
+function drawFig(now){
+  figRaf = requestAnimationFrame(drawFig);
+  if(!figKey) return;
+  const [A,B] = FIG[figKey];
+  /* 4.4s there and back, eased — roughly a slow breath */
+  const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const u = still ? 0.35 : (1 - Math.cos(2*Math.PI * ((now/4400) % 1))) / 2;
+  const g = skeleton(mix(A,B,u));
+  document.querySelectorAll('.fig').forEach(svg=>{
+    const q = c => svg.querySelector(c);
+    q('.f-spine').setAttribute('points', path(g.spine));
+    q('.f-arm').setAttribute('points', path(g.nearArm));
+    q('.f-leg').setAttribute('points', path(g.nearLeg));
+    q('.f-arm2').setAttribute('points', path(g.farArm));
+    q('.f-leg2').setAttribute('points', path(g.farLeg));
+    q('.f-head').setAttribute('cx', g.head[0].toFixed(1));
+    q('.f-head').setAttribute('cy', g.head[1].toFixed(1));
+  });
+}
+
+/* ---------------- sound ---------------- */
+let ac = null, soundOn = true, voice = null;
+
+function initAudio(){
+  try{
+    ac = ac || new (window.AudioContext||window.webkitAudioContext)();
+    if(ac.state === 'suspended') ac.resume();
+    const b = ac.createBuffer(1,1,22050), s = ac.createBufferSource();
+    s.buffer = b; s.connect(ac.destination); s.start(0);
+  }catch(e){}
+  try{ const u = new SpeechSynthesisUtterance(' '); u.volume = 0; speechSynthesis.speak(u); }catch(e){}
+}
+
+function pickVoice(){
+  try{
+    const vs = speechSynthesis.getVoices().filter(v=>/^en/i.test(v.lang));
+    voice = vs.find(v=>v.localService && /Samantha|Serena|Daniel|Karen|Moira|Martha/i.test(v.name))
+         || vs.find(v=>v.localService) || vs[0] || null;
+  }catch(e){}
+}
+if('speechSynthesis' in window){ pickVoice(); speechSynthesis.onvoiceschanged = pickVoice; }
+
+function say(text){
+  if(!soundOn || !('speechSynthesis' in window)) return;
+  try{
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    if(voice) u.voice = voice;
+    u.rate = 0.92; u.pitch = 1;
+    speechSynthesis.speak(u);
+  }catch(e){}
+}
+function hush(){ try{ speechSynthesis.cancel(); }catch(e){} }
+
+/* struck-metal gong: inharmonic partials over a closing lowpass */
+function gong(big){
+  if(!soundOn || !ac) return;
+  try{
+    if(ac.state === 'suspended') ac.resume();
+    const t = ac.currentTime;
+    const out = ac.createGain(); out.gain.value = big ? 0.46 : 0.30;
+    const lp = ac.createBiquadFilter(); lp.type = 'lowpass';
+    lp.frequency.setValueAtTime(2800, t);
+    lp.frequency.exponentialRampToValueAtTime(400, t + 3.4);
+    lp.connect(out); out.connect(ac.destination);
+
+    const f0 = big ? 78 : 98;
+    const parts = [[1,1,3.6],[1.52,.62,3.0],[2.13,.45,2.4],[2.94,.30,1.8],[3.77,.20,1.3],[4.81,.13,0.9],[6.20,.08,0.6]];
+    parts.forEach(([r,a,d],i)=>{
+      [0.997,1.004].forEach(detune=>{               /* two per partial, so it beats like real metal */
+        const o = ac.createOscillator(), g = ac.createGain();
+        o.type = 'sine'; o.frequency.value = f0 * r * detune;
+        g.gain.setValueAtTime(0.0001, t);
+        g.gain.exponentialRampToValueAtTime(a * 0.5, t + 0.006 + i * 0.004);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + d);
+        o.connect(g); g.connect(lp); o.start(t); o.stop(t + d + 0.1);
+      });
+    });
+
+    const len = Math.floor(ac.sampleRate * 0.12);
+    const buf = ac.createBuffer(1, len, ac.sampleRate), ch = buf.getChannelData(0);
+    for(let i=0;i<len;i++) ch[i] = (Math.random()*2-1) * Math.pow(1 - i/len, 3);
+    const n = ac.createBufferSource(); n.buffer = buf;
+    const nf = ac.createBiquadFilter(); nf.type = 'bandpass'; nf.frequency.value = 1500; nf.Q.value = 0.7;
+    const ng = ac.createGain(); ng.gain.value = 0.15;
+    n.connect(nf); nf.connect(ng); ng.connect(out); n.start(t);
+  }catch(e){}
+}
+
+function tock(){
+  if(!soundOn || !ac) return;
+  try{
+    const t = ac.currentTime, o = ac.createOscillator(), g = ac.createGain();
+    o.type = 'sine'; o.frequency.value = 520;
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(0.05, t + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.12);
+    o.connect(g); g.connect(ac.destination); o.start(t); o.stop(t + 0.15);
+  }catch(e){}
+  if(navigator.vibrate) navigator.vibrate(18);
+}
+
+function toggleSound(){
+  soundOn = !soundOn;
+  if(!soundOn) hush();
+  $('mute').textContent = soundOn
+    ? "Gong and spoken cues on — take the phone off silent"
+    : "Gong and spoken cues off";
+  $('mute').classList.toggle('off', !soundOn);
+}
+
+/* what the voice says for a given step */
+const spoken = e => LIB[e.k].n + (e.side ? ", " + e.side : "");
+
+/* keep the screen awake mid-routine */
+async function wake(){
+  try{ if('wakeLock' in navigator) lock = await navigator.wakeLock.request('screen'); }catch(e){}
+}
+function release(){ try{ lock && lock.release(); lock = null; }catch(e){} }
+document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState==='visible' && !lock && $('run').classList.contains('on')) wake(); });
+
+/* greeting by hour */
+(function(){
+  const h = new Date().getHours();
+  const g = $('greet');
+  if(h < 5) g.innerHTML = "Up <em>early</em>. Let's loosen up.";
+  else if(h < 11) g.innerHTML = "Let's get the <em>stiffness</em> out.";
+  else if(h < 17) g.innerHTML = "A <em>reset</em> in the middle of the day.";
+  else g.innerHTML = "Undo the <em>sitting</em>.";
+})();
+
+/* cache everything on first load so it runs with no signal */
+if('serviceWorker' in navigator) addEventListener('load', ()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+</script>
+</body>
+</html>
