@@ -305,12 +305,17 @@ const LIB = {
   shoulderpass:{n:"Shoulder pass-through",c:"Hold a towel or belt wide in both hands, arms straight. Sweep it from your thighs up overhead and as far behind you as is comfortable, then back. Slow both ways.",f:"Go wider on the grip if the shoulders pinch. Never force the end range — the range comes from repetition."},
   gorilla:{n:"Gorilla squat",skip:1,c:"Feet a bit wider than the hips. Drop into a deep squat and slide the hands under the feet, palms up. Then push the hips up to straighten the legs, keeping the hands under the feet, and sink back down.",f:"Hamstrings and low back load together at the top — keep the spine long rather than rounding down to reach."},
   plank:{n:"Forearm plank",c:"Elbows under the shoulders, feet hip-width. Squeeze the glutes and brace the ribs down so the body is one line from head to heels. No sagging hips, no piking up."},
-  slsquat:{n:"Single-leg squat",side:1,c:"Stand on one leg, other leg out in front. Sit back and down under control, then drive up. Put a chair or box behind you and sit to it — that's the version most people should be doing.",f:"Track the knee over the middle of the foot. If it caves inward, go to a higher box."}
+  slsquat:{n:"Single-leg squat",side:1,c:"Stand on one leg, other leg out in front. Sit back and down under control, then drive up. Put a chair or box behind you and sit to it — that's the version most people should be doing.",f:"Track the knee over the middle of the foot. If it caves inward, go to a higher box."},
+  downdog:{n:"Downward dog",c:"From hands and knees, tuck the toes and push the hips up and back into an inverted V. Spend the first 15 seconds pedalling the heels, one at a time, then settle and hold. Knees can stay bent — a long spine matters far more than straight legs. Let the neck hang quiet between the arms."},
+  lungewindmill:{n:"Lunge windmill",side:1,c:"Split stance, front foot planted, back knee low. Rotate the chest down and reach the rear hand to the floor inside the front foot, then unwind and reach the top arm to the ceiling. Follow the top hand with your eyes. Rotate through, don't just hold."},
+  wallslide:{n:"Wall slides",c:"Back to a wall, feet a few inches out, low back and head pressed in. Forearms on the wall, slide them up and down without letting the ribs flare or the back peel away. No wall handy? Do prone swimmers instead — face down, arms sweeping from overhead to the low back and back again.",f:"Optional finish: on the floor, pin a ball or your knuckles under the chest muscle and rest there 15–20 seconds each side."},
+  wallslsquat:{n:"Wall single-leg squat",side:1,c:"Back against the wall, feet out in front. Slide down to 45–60° of knee bend, then hover the other foot and hold. The knee tracks over the second and third toe.",f:"If it goes too quad-heavy, turn side-on to the wall and use a light hand tap for balance instead."}
 };
 
 /* ---------------- routines: [key, seconds per side/rep] ---------------- */
 const PLANS = {
-  10:[["catcow",45],["glide",30],["bridge",45],["sphinx",45],["fig4",40],["ttn",35],["hipflex",40],["n9090",60],["squatrot",50]],
+  10:[["breath",60],["catcow",45],["glide",30],["bridge",45],["downdog",45],["fig4",40],
+      ["ttn",35],["hipflex",40],["n9090",60],["squatrot",50]],
   20:[["breath",60],["glide",30],["bridge",45],["deadbug",45],["catcow",60],["birddog",60],["fig4",45],["n9090",60],["sphinx",45],["ttn",40],["openbook",45],["hipflex",45],["clam",30],["wallangel",45],["pec",40],["calf",30],["chintuck",30]],
   30:[
     /* wake the spine */
@@ -331,8 +336,8 @@ let flare = false, tier = 20, queue = [], idx = 0, remain = 0, timer = null, pla
 
 /* what each routine can roll on into, if you're not done */
 const EXTRA = {
-  10:[["shoulderpass",40],["deadbug",45],["birddog",60],["gorilla",45],["openbook",45],
-      ["plank",45],["calf",30],["squatrot",50],["pec",40],["slsquat",35]],
+  10:[["shoulderpass",40],["deadbug",45],["birddog",60],["gorilla",45],["lungewindmill",40],
+      ["plank",45],["calf",30],["wallslide",45],["wallslsquat",35]],
   20:[["couch",50],["wgs",50],["cossack",45],["sideplank",60],
       ["bear",40],["hollow",35],["ytw",45]]
 };
@@ -517,6 +522,13 @@ const EXTRA_FIG = {
   slsquat:[[100,58,92,88,352,352,272,272,342,352,352,350,342,312],[100,76,72,68,352,352,282,248,318,352,352,8,352,322]]
 };
 Object.assign(FIG, EXTRA_FIG);
+const EXTRA_FIG2 = {
+  downdog:[[95,60,340,320,290,290,230,250,340,286,286,226,246,336],[95,60,340,320,290,290,230,250,340,286,286,228,262,300]],
+  lungewindmill:[[97,72,58,52,92,92,350,272,338,272,282,232,190,205],[97,72,40,35,120,120,350,272,338,268,278,232,190,205]],
+  wallslide:[[100,54,92,92,150,150,270,270,342,150,150,270,270,342],[100,54,92,92,108,108,270,270,342,108,108,270,270,342]],
+  wallslsquat:[[100,64,90,90,350,350,285,270,340,350,350,352,340,310],[100,74,88,88,350,350,300,258,330,350,350,5,348,318]]
+};
+Object.assign(FIG, EXTRA_FIG2);
 const BONE = {spine:24, neck:7, head:8, uarm:17, farm:16, thigh:23, shin:23, foot:8};
 const rad = d => d * Math.PI / 180;
 const step = (p, a, l) => [p[0] + l*Math.cos(rad(a)), p[1] - l*Math.sin(rad(a))];
