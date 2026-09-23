@@ -57,7 +57,7 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 }
 .pick:last-child{border-bottom:1px solid var(--line)}
 .pick .num{font-family:var(--serif);font-variant-numeric:tabular-nums;letter-spacing:-0.03em;line-height:1}
-.pick[data-len="10"] .num{font-size:38px;color:#B9C2DC}
+.pick[data-len="15"] .num{font-size:42px;color:#B9C2DC}
 .pick[data-len="20"] .num{font-size:52px;color:#D6DCEE}
 .pick[data-len="30"] .num{font-size:66px;color:var(--text)}
 .pick .unit{font-size:13px;color:var(--dim)}
@@ -177,8 +177,8 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
   </div>
 
   <div class="picks">
-    <button class="pick" data-len="10" onclick="start(10)">
-      <span class="num">10</span><span class="unit">min</span>
+    <button class="pick" data-len="15" onclick="start(15)">
+      <span class="num">15</span><span class="unit">min</span>
       <span class="desc">the short one, on a rushed day</span>
     </button>
     <button class="pick" data-len="20" onclick="start(20)">
@@ -260,7 +260,7 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 /* ---------------- exercise library ---------------- */
 const LIB = {
   breath:{n:"Breathing reset",c:"On your back, knees bent, feet flat. Hands on the lower ribs. Breathe in through the nose so the ribs widen sideways, then a long slow exhale. Let the shoulders melt into the floor."},
-  glide:{n:"Sciatic nerve glide",side:1,c:"On your back, hold behind one thigh, knee bent to about 90°. Slowly straighten that knee while you tuck your chin, then bend it back as you look up. Keep moving in and out — don't hold at the end.",f:"This is a glide, not a stretch. Nothing should build up or linger."},
+  glide:{n:"Sciatic nerve glide",side:1,c:"On your back, hold behind one thigh, knee bent to about 90°. As you straighten the knee, LOOK UP. As you bend it back in, tuck your chin to your chest. The two ends take turns — never both at once. Keep it moving.",f:"This slides the nerve, it doesn't stretch it. Nothing should build up, linger, or travel further down the leg."},
   bridge:{n:"Glute bridge",c:"Feet hip-width, heels under the knees. Squeeze the glutes first, then lift the hips into a straight line from knee to shoulder. Lower slowly. Drive through the heels."},
   catcow:{n:"Cat and cow",c:"On hands and knees. Exhale and round the spine up, inhale and let it drop. Keep the range small for the first few — the spine is at its stiffest just after waking."},
   fig4:{n:"Figure-4 glute stretch",side:1,c:"On your back, ankle crossed over the opposite thigh, then pull that thigh toward your chest. Head stays down.",f:"Feel it in the back of the hip. If it travels down the leg, ease off until it doesn't."},
@@ -314,8 +314,10 @@ const LIB = {
 
 /* ---------------- routines: [key, seconds per side/rep] ---------------- */
 const PLANS = {
-  10:[["breath",60],["catcow",45],["glide",30],["bridge",45],["downdog",45],["fig4",40],
-      ["ttn",35],["hipflex",40],["n9090",60],["squatrot",50]],
+  15:[["breath",45],["glide",30],["bridge",45],["fig4",35],
+      ["catcow",40],["birddog",60],["ttn",30],["downdog",45],
+      ["hipflex",35],["wgs",45],["plank",90],
+      ["gorilla",40],["squatrot",45],["wallslsquat",35]],
   20:[["breath",60],["glide",30],["bridge",45],["deadbug",45],["catcow",60],["birddog",60],["fig4",45],["n9090",60],["sphinx",45],["ttn",40],["openbook",45],["hipflex",45],["clam",30],["wallangel",45],["pec",40],["calf",30],["chintuck",30]],
   30:[
     /* wake the spine */
@@ -336,12 +338,11 @@ let flare = false, tier = 20, queue = [], idx = 0, remain = 0, timer = null, pla
 
 /* what each routine can roll on into, if you're not done */
 const EXTRA = {
-  10:[["shoulderpass",40],["deadbug",45],["birddog",60],["gorilla",45],["lungewindmill",40],
-      ["plank",45],["calf",30],["wallslide",45],["wallslsquat",35]],
-  20:[["couch",50],["wgs",50],["cossack",45],["sideplank",60],
+  15:[["shoulderpass",40],["n9090",60],["lungewindmill",40],["calf",30],["wallslide",45]],
+  20:[["couch",50],["cossack",45],["sideplank",60],
       ["bear",40],["hollow",35],["ytw",45]]
 };
-const NEXT_TIER = {10:20, 20:30};
+const NEXT_TIER = {15:20, 20:30};
 
 function expand(plan){
   const out = [];
