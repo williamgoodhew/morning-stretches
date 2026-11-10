@@ -173,21 +173,21 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
   <div>
     <div class="mark">Morning Stretch</div>
     <h1 class="greet" id="greet">Let's get the <em>stiffness</em> out.</h1>
-    <p class="sub">Hips, mid-back and posture, built to be sciatica-friendly. Put the phone on the floor and follow along.</p>
+    <p class="sub">Stretch first, then bands, then kettlebell. Each one offers the next when it finishes.</p>
   </div>
 
   <div class="picks">
-    <button class="pick" data-len="15" onclick="start(15)">
+    <button class="pick" data-len="30" onclick="start('stretch')">
       <span class="num">15</span><span class="unit">min</span>
-      <span class="desc">the short one, on a rushed day</span>
+      <span class="desc">mobility stretch — start here</span>
     </button>
-    <button class="pick" data-len="20" onclick="start(20)">
-      <span class="num">20</span><span class="unit">min</span>
-      <span class="desc">the default</span>
+    <button class="pick" data-len="20" onclick="start('band')">
+      <span class="num">12</span><span class="unit">min</span>
+      <span class="desc">resistance band workout</span>
     </button>
-    <button class="pick" data-len="30" onclick="start(30)">
-      <span class="num">30</span><span class="unit">min</span>
-      <span class="desc">the hard one — mobility, hips, core</span>
+    <button class="pick" data-len="15" onclick="start('kb')">
+      <span class="num">7</span><span class="unit">min</span>
+      <span class="desc">kettlebell finisher</span>
     </button>
   </div>
 
@@ -237,7 +237,7 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 <!-- ============ TRANSITION ============ -->
 <section class="screen" id="gap">
   <div>
-    <div class="up">Next up</div>
+    <div class="up" id="gapUp">Next up</div>
     <div class="nm" id="gapName"></div>
     <div class="sd" id="gapSide"></div>
     <svg class="fig big" viewBox="0 0 200 120" aria-hidden="true"><line class="f-ground" x1="8" y1="100" x2="192" y2="100"/><polyline class="f-arm2 f-far" points=""/><polyline class="f-leg2 f-far" points=""/><polyline class="f-leg f-near" points=""/><polyline class="f-arm f-near" points=""/><polyline class="f-spine" points=""/><circle class="f-head" r="6.5"/></svg>
@@ -259,6 +259,22 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 <script>
 /* ---------------- exercise library ---------------- */
 const LIB = {
+  walkout:{n:"Walkouts",skip:1,c:"Stand tall, hinge forward and put your hands on the floor — bend the knees as much as you need. Walk the hands out to a high plank, pause, walk them back and roll up to standing. Smooth and continuous.",f:"Bend the knees generously on the way down. You're hinging to the floor, not stretching the hamstrings."},
+  shoulderloop:{n:"Shoulder loop",band:"red + yellow",fig:"shoulderpass",c:"Hold the band wide, arms straight. Loop it from in front of your hips up overhead and down behind you, then back. Widen the grip if anything pinches."},
+  bandsquat:{n:"Band squat",band:"purple",fig:"goblet",c:"Stand on the band, feet shoulder-width, band over the shoulders or held at the shoulders. Sit down between the heels, chest up, then drive up through the whole foot."},
+  bandrdl:{n:"Romanian deadlift",band:"purple + green",fig:"rdl",c:"Stand on the band, hands in front of the thighs. Soft knees, push the hips straight back until the hamstrings load, then squeeze the glutes to stand. Hands stay close to the legs.",f:"Long, flat back the whole way. If anything travels down the leg, shorten the range."},
+  banddl:{n:"Deadlift",band:"purple + green",fig:"rdl",c:"Stand on the band, hands at the sides of the feet. More knee bend than the RDL — hips back and down, chest up, then push the floor away and stand tall. Don't lean back at the top."},
+  revlunge:{n:"Reverse lunge",band:"green",fig:"revlunge",c:"Stand on the band with the front foot, handles at the shoulders or at your sides. Step back and lower the back knee towards the floor, front shin vertical. Drive through the front heel to come back up."},
+  pressup:{n:"Press-ups",fig:"pressup",c:"Hands just wider than the shoulders, body one straight line, glutes tight. Lower the chest to just above the floor, elbows at about 45°, then press away. Drop to the knees as soon as the hips start to sag."},
+  ohpress:{n:"Shoulder press",band:"black",fig:"ohpress",c:"Stand on the band, handles at the shoulders. Press straight overhead until the arms lock out by your ears, then lower with control. Ribs down — don't arch to finish the rep."},
+  uprow:{n:"Upright row",band:"black",fig:"uprow",c:"Stand on the band, hands close together in front of the thighs. Lead with the elbows and pull up to chest height, elbows higher than the hands. Stop at chest height — no higher."},
+  latraise:{n:"Lateral raise",band:"yellow",c:"Stand on the band, arms by your sides, slight bend in the elbows. Raise the arms out to the sides to shoulder height, thumbs slightly up, then lower slowly. No shrugging."},
+  frontraise:{n:"Front raise",band:"red",fig:"frontraise",c:"Stand on the band, hands in front of the thighs. Raise straight arms forward to shoulder height, pause, lower slowly. Keep the body still — no swinging."},
+  pullapart:{n:"Band pull-apart",band:"red",c:"Hold the band in front of you at shoulder height, arms straight, hands shoulder-width. Pull it apart until it touches your chest, squeezing the shoulder blades together, then return slowly."},
+  kbswing:{n:"Kettlebell swing",fig:"swing",c:"Bell a foot in front of you. Hike it back between the legs, then snap the hips forward to float it to chest height. It's a hip hinge, not a squat and not an arm lift — the arms just hold on.",f:"Hinge, don't round. If the low back is doing the work, lighten the bell or shorten the swing."},
+  curtsey:{n:"Curtsey squat",fig:"revlunge",c:"Hold the bell at the chest. Step one leg back and behind the other, like a curtsey, and lower until the front thigh is near parallel. Front knee tracks over the toes. Drive back up through the front heel."},
+  slrdlrow:{n:"Single-leg RDL to row",fig:"slrdl",c:"Stand on one leg, bell in the opposite hand. Hinge forward as the free leg reaches back, row the bell to your hip at the bottom, lower it, then stand tall.",f:"Square hips — don't let the back leg's hip open up to the ceiling. Hold a wall with the free hand if balance goes."},
+  goblet:{n:"Goblet squat",fig:"goblet",c:"Hold the bell by the horns at your chest, elbows down. Sit between your heels as deep as you can with a tall chest, elbows brushing the inside of the knees, then stand."},
   breath:{n:"Breathing reset",c:"On your back, knees bent, feet flat. Hands on the lower ribs. Breathe in through the nose so the ribs widen sideways, then a long slow exhale. Let the shoulders melt into the floor."},
   glide:{n:"Sciatic nerve glide",side:1,c:"On your back, hold behind one thigh, knee bent to about 90°. As you straighten the knee, LOOK UP. As you bend it back in, tuck your chin to your chest. The two ends take turns — never both at once. Keep it moving.",f:"This slides the nerve, it doesn't stretch it. Nothing should build up, linger, or travel further down the leg."},
   bridge:{n:"Glute bridge",c:"Feet hip-width, heels under the knees. Squeeze the glutes first, then lift the hips into a straight line from knee to shoulder. Lower slowly. Drive through the heels."},
@@ -314,58 +330,46 @@ const LIB = {
 
 /* ---------------- routines: [key, seconds per side/rep] ---------------- */
 const PLANS = {
-  15:[["breath",45],["glide",30],["bridge",45],["fig4",35],
+  stretch:{gap:5, items:[["breath",45],["walkout",30],["deadbug",60],["bridge",45],["fig4",35],
       ["catcow",40],["birddog",60],["ttn",30],["downdog",45],
-      ["hipflex",35],["wgs",45],["plank",90],
-      ["gorilla",40],["squatrot",45],["wallslsquat",35]],
-  20:[["breath",60],["glide",30],["bridge",45],["deadbug",45],["catcow",60],["birddog",60],["fig4",45],["n9090",60],["sphinx",45],["ttn",40],["openbook",45],["hipflex",45],["clam",30],["wallangel",45],["pec",40],["calf",30],["chintuck",30]],
-  30:[
-    /* wake the spine */
-    ["breath",40],["glide",30],["catcow",40],["rockback",40],["sphinx",40],
-    /* mobility */
-    ["thoracicext",45],["openbook",40],["n9090",60],["ankle",35],["cossack",45],["squatrot",60],["squat2stand",40],
-    /* hips */
-    ["couch",50],["wgs",50],["wgsham",35],["activehf",30],["fig4",40],
-    /* core */
-    ["deadbug2",45],["hollow",35],["birddog2",50],["sideplank",40],["bear",40],["bridgemarch",40],
-    /* posture */
-    ["ytw",45],["wallangel",45],["pec",40],["chintuck",30],["close",40]
-  ]
+      ["hipflex",35],["wgs",45],["plank",60],
+      ["gorilla",40],["squatrot",45],["wallslsquat",35]]},
+  band:{gap:15, items:[["shoulderloop",45],["bandsquat",45],["bandrdl",45],["banddl",45],
+      ["revlunge",45,"right side"],["revlunge",45,"left side"],["pressup",45],
+      ["ohpress",45],["uprow",45],["latraise",45],["frontraise",45],["pullapart",45]]},
+  kb:{gap:15, items:[["kbswing",45],["curtsey",45,"right side"],["kbswing",45],["curtsey",45,"left side"],
+      ["slrdlrow",45,"left side"],["slrdlrow",45,"right side"],["goblet",45]]}
 };
+const NEXT_SESSION = {stretch:"band", band:"kb"};
+const SESSION_NAME = {stretch:"stretch", band:"band workout", kb:"kettlebell workout"};
 
-const GAP = 5;
-let flare = false, tier = 20, queue = [], idx = 0, remain = 0, timer = null, playing = false, lock = null;
+let gap = 5;
+let flare = false, session = "stretch", queue = [], idx = 0, remain = 0, timer = null, playing = false, lock = null;
 
 /* what each routine can roll on into, if you're not done */
-const EXTRA = {
-  15:[["shoulderpass",40],["n9090",60],["lungewindmill",40],["calf",30],["wallslide",45]],
-  20:[["couch",50],["cossack",45],["sideplank",60],
-      ["bear",40],["hollow",35],["ytw",45]]
-};
-const NEXT_TIER = {15:20, 20:30};
-
 function expand(plan){
   const out = [];
-  plan.forEach(([k,dur])=>{
+  plan.forEach(([k,dur,sd])=>{
     const e = LIB[k];
     if(flare && e.skip) return;
-    if(e.side){
+    if(sd !== undefined) out.push({k,dur,side:sd});
+    else if(e.side){
       out.push({k,dur,side:"left side"});
       out.push({k,dur,side:"right side"});
     } else out.push({k,dur,side:""});
   });
   return out;
 }
-function buildQueue(mins){
-  const out = expand(PLANS[mins]);
-  if(flare){
+function buildQueue(name){
+  const out = expand(PLANS[name].items);
+  if(flare && name === "stretch"){
     /* gentler emphasis: an extra set of nerve glides to finish */
     out.push({k:"glide",dur:30,side:"left side"},{k:"glide",dur:30,side:"right side"});
   }
   return out;
 }
-const runtime = q => Math.round((q.reduce((s,x)=>s+x.dur,0) + Math.max(0,q.length-1)*GAP)/60);
-const totalLeft = i => queue.slice(i).reduce((s,x)=>s+x.dur,0) + Math.max(0,queue.length-i-1)*GAP;
+const runtime = (q,g) => Math.round((q.reduce((s,x)=>s+x.dur,0) + Math.max(0,q.length-1)*g)/60);
+const totalLeft = i => queue.slice(i).reduce((s,x)=>s+x.dur,0) + Math.max(0,queue.length-i-1)*gap;
 
 /* ---------------- screens ---------------- */
 const $ = id => document.getElementById(id);
@@ -380,18 +384,25 @@ function toggleFlare(){
 }
 
 /* ---------------- run ---------------- */
-function start(mins){
+const DONE_TEXT = {
+  stretch:"Hips, spine and core, done. Ready for the bands?",
+  band:"Band work done. One more block if you've got seven minutes in you.",
+  kb:"That's everything. Have some water and walk around for a minute before you sit down."
+};
+function begin(name, intro){
   initAudio();                                   /* iOS only allows this from a tap */
-  queue = buildQueue(mins); idx = 0; tier = mins;
-  $('doneText').textContent = mins + " minutes of hips and spine, done. Stand up and walk around for a minute before you sit down to anything.";
+  session = name; gap = PLANS[name].gap;
+  queue = buildQueue(name); idx = 0;
+  $('doneText').textContent = DONE_TEXT[name];
   wake(); show('run'); load(); play();
-  setTimeout(()=>say("Starting with " + spoken(queue[0])), 300);
+  setTimeout(()=>say(intro + spoken(queue[0])), 300);
 }
+function start(name){ begin(name, "Starting with "); }
 function load(){
   const e = queue[idx], d = LIB[e.k];
   remain = e.dur;
   $('name').textContent = d.n;
-  $('side').textContent = e.side;
+  $('side').textContent = [e.side, d.band ? d.band + " band" : ""].filter(Boolean).join(" · ");
   $('cue').textContent = d.c;
   $('flag').classList.toggle('on', !!d.f);
   $('flagText').textContent = d.f || "";
@@ -436,9 +447,10 @@ function advance(){
 let gapTimer = null;
 function gapCountdown(){
   const e = queue[idx], d = LIB[e.k];
-  let n = GAP;
+  let n = gap;
   $('gapName').textContent = d.n;
-  $('gapSide').textContent = e.side;
+  $('gapSide').textContent = [e.side, d.band ? d.band + " band" : ""].filter(Boolean).join(" · ");
+  $('gapUp').textContent = gap > 5 ? "Rest — next up" : "Next up";
   $('gapCount').textContent = n;
   show('gap');
   setFigure(e.k);
@@ -454,20 +466,14 @@ function skipGap(){ clearInterval(gapTimer); show('run'); load(); play(); }
 function finish(){
   clearInterval(timer); setTimeout(()=>gong(true), 800);
   say("That's it. Well done."); show('done'); release();
-  const more = EXTRA[tier] && expand(EXTRA[tier]);
-  if(more && more.length){
+  const nx = NEXT_SESSION[session];
+  if(nx){
     $('more').style.display = "block";
-    $('more').textContent = "Keep going — " + runtime(more) + " more minutes";
+    $('more').textContent = "Go on to the " + SESSION_NAME[nx] + " — " + runtime(expand(PLANS[nx].items), PLANS[nx].gap) + " min";
   } else $('more').style.display = "none";
 }
 /* roll straight on into the next block without going back to the start */
-function goOn(){
-  initAudio();
-  queue = expand(EXTRA[tier]); idx = 0; tier = NEXT_TIER[tier] || 30;
-  $('doneText').textContent = "That's the lot. Stand up and walk around for a minute before you sit down to anything.";
-  wake(); show('run'); load(); play();
-  setTimeout(()=>say("Carrying on with " + spoken(queue[0])), 300);
-}
+function goOn(){ const nx = NEXT_SESSION[session]; if(nx) begin(nx, "On to the " + SESSION_NAME[nx] + ". First up, "); }
 function quit(){ clearInterval(timer); clearInterval(gapTimer); hush(); show('home'); release(); }
 function home(){ show('home'); }
 
@@ -530,6 +536,19 @@ const EXTRA_FIG2 = {
   wallslsquat:[[100,64,90,90,350,350,285,270,340,350,350,352,340,310],[100,74,88,88,350,350,300,258,330,350,350,5,348,318]]
 };
 Object.assign(FIG, EXTRA_FIG2);
+const EXTRA_FIG3 = {
+walkout:[[95,56,300,290,275,275,272,268,340,275,275,272,268,340],[90,78,24,20,270,270,204,204,250,270,270,204,204,250]],
+pressup:[[90,78,24,20,270,270,204,204,250,270,270,204,204,250],[90,86,15,12,200,290,195,195,250,200,290,195,195,250]],
+swing:[[92,57,40,30,282,275,290,255,340,282,275,290,255,340],[95,54,92,92,0,0,270,270,345,0,0,270,270,345]],
+revlunge:[[100,54,92,92,272,272,270,270,342,272,272,272,272,344],[95,76,92,92,272,272,352,275,340,272,272,248,186,200]],
+ohpress:[[100,54,92,92,285,95,270,270,342,285,95,272,272,344],[100,54,92,92,92,92,270,270,342,92,92,272,272,344]],
+uprow:[[100,54,92,92,276,276,270,270,342,276,276,272,272,344],[100,54,92,92,12,245,270,270,342,12,245,272,272,344]],
+frontraise:[[100,54,92,92,278,278,270,270,342,278,278,272,272,344],[100,54,92,92,2,2,270,270,342,2,2,272,272,344]],
+rdl:[[100,54,92,92,274,274,270,270,342,274,274,272,272,344],[90,57,28,22,272,272,288,262,340,272,272,288,262,340]],
+slrdl:[[100,54,92,92,274,274,270,270,342,274,274,272,272,344],[100,55,8,8,272,272,272,268,340,330,250,188,188,260]],
+goblet:[[100,54,92,92,295,85,270,270,342,295,85,272,272,344],[100,76,82,85,330,90,340,235,195,330,90,335,232,192]]
+};
+Object.assign(FIG, EXTRA_FIG3);
 const BONE = {spine:24, neck:7, head:8, uarm:17, farm:16, thigh:23, shin:23, foot:8};
 const rad = d => d * Math.PI / 180;
 const step = (p, a, l) => [p[0] + l*Math.cos(rad(a)), p[1] - l*Math.sin(rad(a))];
@@ -546,7 +565,8 @@ const path = pts => pts.map(p=>p[0].toFixed(1)+","+p[1].toFixed(1)).join(" ");
 
 let figKey = null, figRaf = null, figT = 0;
 function setFigure(key){
-  figKey = FIG[key] ? key : null;
+  const fk = (LIB[key] && LIB[key].fig) || key;
+  figKey = FIG[fk] ? fk : null;
   document.querySelectorAll('.fig').forEach(el=>el.style.opacity = figKey ? 1 : 0);
   figT = 0;
   if(!figRaf) figRaf = requestAnimationFrame(drawFig);
@@ -663,7 +683,7 @@ function toggleSound(){
 }
 
 /* what the voice says for a given step */
-const spoken = e => LIB[e.k].n + (e.side ? ", " + e.side : "");
+const spoken = e => LIB[e.k].n + (e.side ? ", " + e.side : "") + (LIB[e.k].band ? ". " + LIB[e.k].band + " band" : "");
 
 /* keep the screen awake mid-routine */
 async function wake(){
@@ -682,7 +702,6 @@ document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState=
   else g.innerHTML = "Undo the <em>sitting</em>.";
 })();
 
-/* cache everything on first load so it runs with no signal */
 if('serviceWorker' in navigator) addEventListener('load', ()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
 </script>
 </body>
