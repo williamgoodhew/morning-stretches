@@ -297,6 +297,8 @@ const LIB = {
   hinge:{n:"Standing hamstring hinge",side:1,skip:1,c:"One heel forward on the floor, toes up. Push the hips back with a long flat back until you feel the back of that thigh.",f:"Never round the low back to reach further — that's what irritates the nerve."},
   wgs:{n:"World's greatest stretch",side:1,skip:1,c:"Long lunge, same-side hand on the floor inside the front foot. Drop the back hip, then rotate the chest open and reach the top arm to the ceiling. Look at the hand."},
   child:{n:"Child's pose, side reach",c:"Knees wide, hips back toward the heels, arms long. Walk the hands over to one side to open the ribs, breathe, then to the other. Cushion under the hips if the knees complain."},
+  wipers:{n:"Windscreen wipers",c:"On your back, knees bent, feet flat and wider than the hips, arms out low by your sides. Let both knees drop slowly to one side, then sweep them across to the other. Shoulders stay down — go only as far as is comfortable.",f:"Keep it slow and easy. If it pinches in the low back, make the swing smaller."},
+  seatreach:{n:"Seated single-leg toe reach",side:1,skip:1,c:"Sit tall with one leg straight out and the other foot tucked against the inner thigh. Turn your chest to face the straight leg, then lean forward from the hips and reach towards the toes. Long spine — reach the chest along the thigh rather than rounding down.",f:"Bend the straight knee a little if the back of the leg pulls hard. Skipped in sciatica mode."},
   sidebend:{n:"Standing side bend",side:1,c:"Feet hip-width, one arm overhead, lean away. Both feet planted, hips level. Feel it along the ribs, not in the low back."},
   rockback:{n:"Quadruped rock backs",c:"Hands and knees, flat back. Rock the hips back toward the heels only as far as the low back stays flat, then return. Slow and rhythmic."},
   cobra:{n:"Press-up",c:"Face down, hands under the shoulders. Press the chest up while the hips stay heavy on the floor. Only as far as is comfortable, and lower with control."},
@@ -330,10 +332,9 @@ const LIB = {
 
 /* ---------------- routines: [key, seconds per side/rep] ---------------- */
 const PLANS = {
-  stretch:{gap:5, items:[["breath",45],["walkout",30],["deadbug",60],["bridge",45],["fig4",35],
-      ["catcow",40],["birddog",60],["ttn",30],["downdog",45],
-      ["hipflex",35],["wgs",45],["plank",60],
-      ["gorilla",40],["squatrot",45],["wallslsquat",35]]},
+  stretch:{gap:5, items:[["breath",45],["deadbug",60],["fig4",35],["bridge",45],["wipers",60],["seatreach",40],
+      ["catcow",40],["ttn",30],["birddog",60],["downdog",45],
+      ["wgs",45],["gorilla",40],["sidebend",30],["walkout",30],["squatrot",45]]},
   band:{gap:15, items:[["shoulderloop",45],["bandsquat",45],["bandrdl",45],["banddl",45],
       ["revlunge",45,"right side"],["revlunge",45,"left side"],["pressup",45],
       ["ohpress",45],["uprow",45],["latraise",45],["frontraise",45],["pullapart",45]]},
@@ -549,6 +550,11 @@ slrdl:[[100,54,92,92,274,274,270,270,342,274,274,272,272,344],[100,55,8,8,272,27
 goblet:[[100,54,92,92,295,85,270,270,342,295,85,272,272,344],[100,76,82,85,330,90,340,235,195,330,90,335,232,192]]
 };
 Object.assign(FIG, EXTRA_FIG3);
+const EXTRA_FIG4 = {
+  wipers:[[100,93,180,180,355,355,60,300,265,350,350,55,298,262],[100,93,180,180,355,355,25,340,300,350,350,35,330,290]],
+  seatreach:[[100,97,80,85,340,350,0,0,90,345,355,25,200,0],[100,97,35,28,350,355,0,0,90,355,0,25,200,0]]
+};
+Object.assign(FIG, EXTRA_FIG4);
 const BONE = {spine:24, neck:7, head:8, uarm:17, farm:16, thigh:23, shin:23, foot:8};
 const rad = d => d * Math.PI / 180;
 const step = (p, a, l) => [p[0] + l*Math.cos(rad(a)), p[1] - l*Math.sin(rad(a))];
